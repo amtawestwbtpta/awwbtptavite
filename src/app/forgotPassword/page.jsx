@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import PasswordForm from "../../components/PasswordForm";
 import Loader from "../../components/Loader";
@@ -48,6 +48,18 @@ const OtpForm = () => {
   }, []);
   return (
     <div className="container my-5">
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {loader ? <Loader /> : null}
       <h3 className="text-center text-primary mb-3">Reset Password</h3>
       <div className="col-md-6 mx-auto">

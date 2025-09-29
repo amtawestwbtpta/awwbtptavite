@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../../context/Store";
 
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { firestore } from "../../context/FirebaseContext";
 import {
   collection,
@@ -419,6 +419,18 @@ const QuestionRequisition = () => {
   }
   return (
     <div className="container my-5 text-center">
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {loader ? <Loader /> : null}
       <div className="col-md-6 mx-auto">
         <Swiper

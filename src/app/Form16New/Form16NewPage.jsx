@@ -16,7 +16,7 @@ import axios from "axios";
 import { collection, getDocs, query } from "firebase/firestore";
 import Form16New from "../../pdfs/Form16New";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 export default function Form16NewPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -419,6 +419,18 @@ export default function Form16NewPage() {
   ]);
   return (
     <div className="container-fluid my-3">
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {loader ? (
         <Loader />
       ) : showYearSelection ? (

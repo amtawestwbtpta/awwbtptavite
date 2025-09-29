@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import type { FC } from "react";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { firestore, useFirebase } from "../context/FirebaseContext";
 import {
   collection,
@@ -334,6 +334,18 @@ const Registration: React.FC<RegistrationProps> = ({ data, setSignUpTrue }) => {
 
   return (
     <div className="container my-5">
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="row login text-black m-auto p-2">
         <h3 className="text-primary">
           HELLO {data.tname}, PLEASE COMPLETE YOUR REGISTRATION

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "../../context/Store";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import {
   compareObjects,
   createDownloadLink,
@@ -423,6 +423,18 @@ export default function EPensionFiles() {
   }, []);
   return (
     <div className="container timesFont">
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {loader && <Loader />}
       <div
         className="d-flex flex-column justify-content-center align-items-center mx-auto noprint"

@@ -12,7 +12,7 @@ import {
 import WBTPTAPaySLip from "../../pdfs/WBTPTAPaySLip";
 import axios from "axios";
 import Loader from "../../components/Loader";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 const PayslipWbtpta = () => {
   const { state, stateObject } = useGlobalContext();
@@ -265,6 +265,18 @@ const PayslipWbtpta = () => {
             color: "#000",
           }}
         >
+          <ToastContainer
+            position="top-right"
+            autoClose={1500}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss={false}
+            draggable
+            pauseOnHover
+            theme="light"
+          />
           <div className="mx-auto my-3 noprint">
             <button
               type="button"

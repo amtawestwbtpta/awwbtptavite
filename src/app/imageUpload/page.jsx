@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { useGlobalContext } from "../../context/Store";
 import { baseUrl } from "../../modules/constants";
 const ImageUpload = () => {
@@ -86,6 +86,18 @@ const ImageUpload = () => {
   }, [url, public_id]);
   return (
     <div className="container">
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="col-md-6 mx-auto">
         <h1>Image Upload</h1>
         <label htmlFor="file-upload" className="my-3">

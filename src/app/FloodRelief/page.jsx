@@ -11,7 +11,7 @@ import {
   IndianFormat,
   createDownloadLink,
 } from "../../modules/calculatefunctions";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { v4 as uuid } from "uuid";
 import { baseUrl } from "../../modules/constants";
 export default function FloodRelief() {
@@ -227,6 +227,18 @@ export default function FloodRelief() {
   ]);
   return (
     <div className="container my-3">
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {showLoader && <Loader />}
       {state === "admin" && (
         <div className="mb-3 noprint">

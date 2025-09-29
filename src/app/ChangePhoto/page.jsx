@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import Loader from "../../components/Loader";
 import { firestore, storage } from "../../context/FirebaseContext";
 import { doc, updateDoc } from "firebase/firestore";
@@ -247,6 +247,18 @@ const ChangePhoto = () => {
   });
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {loader ? <Loader /> : null}
       <div className="container my-5">
         <div className="col-md-6 mx-auto">

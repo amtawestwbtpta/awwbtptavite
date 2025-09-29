@@ -6,7 +6,7 @@ import { GetMonthName, readCSVFile } from "../../modules/calculatefunctions";
 import WBTPTAPaySLip from "../../pdfs/WBTPTAPaySLip";
 
 import { decryptObjData, getCookie } from "../../modules/encryption";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 export default function DownloadWBTPTAPayslip() {
   const thisYear = new Date().getFullYear();
@@ -226,6 +226,18 @@ export default function DownloadWBTPTAPayslip() {
   }
   return (
     <div>
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="mx-auto my-3 noprint">
         <button
           type="button"

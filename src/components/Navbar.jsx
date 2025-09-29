@@ -13,7 +13,7 @@ import Loader from "./Loader";
 import axios from "axios";
 // import T from "./teachers.json";
 // import S from "./schools.json";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { baseUrl } from "../modules/constants";
 const Navbar = () => {
   const {
@@ -1257,6 +1257,18 @@ const Navbar = () => {
         </div>
       </div>
       {showLoader && <Loader />}
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </nav>
   );
 };

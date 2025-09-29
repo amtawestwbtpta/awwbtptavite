@@ -15,7 +15,7 @@ import { firestore } from "../../context/FirebaseContext";
 import Loader from "../../components/Loader";
 import axios from "axios";
 import { collection, doc, getDocs, query, updateDoc } from "firebase/firestore";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import IncomeTaxNew2025 from "../../pdfs/IncomeTaxNew2025";
 import IncomeTaxOld2025 from "../../pdfs/IncomeTaxOld2025";
 import Form16New from "../../pdfs/Form16New";
@@ -1894,6 +1894,18 @@ export default function IncomeTaxReloded() {
 
   return (
     <div className="container-fluid">
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {loader ? (
         <Loader />
       ) : showYearSelection ? (

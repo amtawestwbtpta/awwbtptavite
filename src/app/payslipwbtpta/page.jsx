@@ -11,7 +11,7 @@ import {
 import WBTPTAPaySLip from "../../pdfs/WBTPTAPaySLip";
 import axios from "axios";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 const PayslipWbtpta = () => {
   const thisYear = new Date().getFullYear();
   const prevYear = thisYear - 1;
@@ -362,6 +362,18 @@ const PayslipWbtpta = () => {
           color: "#000",
         }}
       >
+        <ToastContainer
+          position="top-right"
+          autoClose={1500}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss={false}
+          draggable
+          pauseOnHover
+          theme="light"
+        />
         <div className="mx-auto my-3 noprint">
           <button
             type="button"
