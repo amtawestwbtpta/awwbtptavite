@@ -13,7 +13,7 @@ import Loader from "./Loader";
 import axios from "axios";
 // import T from "./teachers.json";
 // import S from "./schools.json";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { baseUrl } from "../modules/constants";
 const Navbar = () => {
   const {
@@ -643,6 +643,15 @@ const Navbar = () => {
               Complain or Suggest Us
             </Link>
           </li>
+          <li className="nav-item">
+            <Link
+              className="nav-link"
+              to="/GithubManager"
+              onClick={handleNavCollapse}
+            >
+              Github Manager
+            </Link>
+          </li>
           {questionRateState?.isAccepting && (
             <li className="nav-item">
               <Link
@@ -1257,18 +1266,6 @@ const Navbar = () => {
         </div>
       </div>
       {showLoader && <Loader />}
-      <ToastContainer
-        position="top-right"
-        autoClose={1500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss={false}
-        draggable
-        pauseOnHover
-        theme="light"
-      />
     </nav>
   );
 };

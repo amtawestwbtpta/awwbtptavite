@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import Loader from "./Loader";
 
@@ -11,6 +11,25 @@ const PDFViewer = ({ pdfUrl }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const containerRef = useRef(null);
+  const [key, setKey] = useState(0);
+
+  // Memoize options to prevent unnecessary reloads
+  const pdfOptions = useMemo(
+    () => ({
+      cMapUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/",
+      cMapPacked: true,
+    }),
+    []
+  );
+
+  // Reset state when pdfUrl changes
+  useEffect(() => {
+    setNumPages(null);
+    setPageNumber(1);
+    setLoading(true);
+    setError(null);
+    setKey((prev) => prev + 1);
+  }, [pdfUrl]);
 
   // Handle container resize
   useEffect(() => {
@@ -35,9 +54,11 @@ const PDFViewer = ({ pdfUrl }) => {
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
     setLoading(false);
+    setError(null);
   };
 
   const onDocumentLoadError = (error) => {
+    console.error("PDF loading error:", error);
     setError(error.message || "Failed to load PDF");
     setLoading(false);
   };
@@ -46,6 +67,14 @@ const PDFViewer = ({ pdfUrl }) => {
     setPageNumber((prevPage) =>
       Math.max(1, Math.min(numPages, prevPage + offset))
     );
+  };
+  // Add this function to handle PDF reload
+  const reloadPDF = () => {
+    setKey((prev) => prev + 1);
+    setLoading(true);
+    setError(null);
+    setNumPages(null);
+    setPageNumber(1);
   };
 
   return (
@@ -69,13 +98,22 @@ const PDFViewer = ({ pdfUrl }) => {
         {loading && <Loader />}
         {error && <div className="pdf-error">Error: {error}</div>}
 
-        {!error && (
+        {error ? (
+          <div className="pdf-error">
+            <p>Error: {error}</p>
+            <button onClick={reloadPDF} className="retry-button">
+              Retry Loading PDF
+            </button>
+          </div>
+        ) : (
           <>
             <Document
+              key={key}
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
               loading={<Loader />}
+              options={pdfOptions} // Use memoized options
             >
               <Page
                 pageNumber={pageNumber}

@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useGlobalContext } from "../../context/Store";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 
 import {
@@ -26,8 +25,10 @@ import AdminNavBar from "../../components/AdminNavBar";
 import Loader from "../../components/Loader";
 import { v4 as uuid } from "uuid";
 import { decryptObjData, getCookie } from "../../modules/encryption";
-import { baseUrl } from "../../modules/constants";
-
+import {
+  deleteFileFromGithub,
+  uploadFileToGithub,
+} from "../../modules/gitFileHndler";
 const AdminUploadFile = () => {
   const { state } = useGlobalContext();
   const fileInpRef = useRef();
@@ -40,7 +41,6 @@ const AdminUploadFile = () => {
   const [editFileName, setEditFileName] = useState("");
   const [editFileId, setEditFileId] = useState("");
   const docId = uuid();
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   let details = getCookie("uid");
   let userdetails = {
     circle: "",
@@ -88,30 +88,23 @@ const AdminUploadFile = () => {
   const [allData, setAllData] = useState([]);
   const getData = async () => {
     setData(true);
-    let datas = [];
-    try {
-      const q = query(collection(firestore, "downloads"));
+    const q = query(collection(firestore, "downloads"));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({
+      // doc.data() is never undefined for query doc snapshots
+      ...doc.data(),
+      id: doc.id,
+    }));
 
-      const querySnapshot = await getDocs(q);
-      datas = querySnapshot.docs.map((doc) => ({
-        // doc.data() is never undefined for query doc snapshots
-        ...doc.data(),
-        id: doc.id,
-      }));
-    } catch (error) {
-      const url = `${baseUrl}/api/getDownloads`;
-      const response = await axios.post(url);
-      datas = response.data.data;
-      console.log(error);
-    }
-    setAllData(datas);
+    setAllData(data);
   };
 
-  const uploadFiles = () => {
+  const uploadFiles = async () => {
     if (file == null) {
       return;
     } else {
       setLoader(true);
+      const githubUrl = await uploadFileToGithub(file, file.name, folder);
       const filestorageRef = ref(storage, `/${folder}/${file.name}`);
       const uploadTask = uploadBytesResumable(filestorageRef, file);
       uploadTask.on(
@@ -126,69 +119,26 @@ const AdminUploadFile = () => {
         () => {
           // download url
           getDownloadURL(uploadTask.snapshot.ref).then(async (fburl) => {
-            // console.log(url);
-            try {
-              const data = new FormData();
-              data.append("file", file);
-              data.append("upload_preset", "myfiles");
-              data.append("cloud_name", cloudName);
-              data.append("public_id", file.name);
-              const cldUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-
-              await axios
-                .post(cldUrl, data)
-                .then(async (data) => {
-                  const cdurl = data.data.secure_url;
-                  toast.success(
-                    "Congrats! File Uploaded Successfully to Clodinary!"
-                  );
-                  try {
-                    await setDoc(doc(firestore, "downloads", docId), {
-                      id: docId,
-                      date: Date.now(),
-                      addedBy: userdetails.tname,
-                      url: fburl,
-                      fileName: fileName,
-                      originalFileName: file.name,
-                      fileType: file.type,
-                      cloudinaryUrl: cdurl,
-                    });
-                    const url = `${baseUrl}/api/addDownload`;
-                    const response = await axios.post(url, {
-                      id: docId,
-                      date: Date.now(),
-                      addedBy: userdetails.tname,
-                      url: fburl,
-                      fileName: fileName,
-                      originalFileName: file.name,
-                      fileType: file.type,
-                      cloudinaryUrl: cdurl,
-                    });
-                    const record = response.data;
-                    if (record.success) {
-                      toast.success("Congrats! File Uploaded Successfully!");
-                      setLoader(false);
-                      getData();
-                      setFile(null);
-                    } else {
-                      toast.error("File Upload Failed!");
-                    }
-                  } catch (e) {
-                    console.log(e);
-                    toast.error("File Upload Failed!");
-                    setLoader(false);
-                  }
-                })
-                .catch((error) => {
-                  setLoader(false);
-                  console.error(error);
-                  toast.error("Failed to Upload Image");
-                });
-            } catch (error) {
-              setLoader(false);
-              console.error("Error:", error);
-              toast.error("Failed to Upload File to Cloudinary!");
-            }
+            const entry = {
+              id: docId,
+              date: Date.now(),
+              addedBy: userdetails.tname,
+              url: fburl,
+              githubUrl,
+              fileName: fileName,
+              originalFileName: file.name,
+              fileType: file.type,
+            };
+            await setDoc(doc(firestore, "downloads", docId), entry);
+            toast.success("Congrats! File Uploaded Successfully!");
+            setLoader(false);
+            const newData = [...allData, entry];
+            setAllData(newData);
+            setFile(null);
+            setFileName("");
+            fileInpRef.current.value = "";
+            selectionRef.current.value = "files";
+            setFolder("files");
           });
         }
       );
@@ -199,45 +149,25 @@ const AdminUploadFile = () => {
     await updateDoc(docRef, {
       fileName: editFileName,
     });
-    const url = `${baseUrl}/api/updateDownload`;
-    const response = await axios.post(url, {
-      fileName: editFileName,
-      id: editFileId,
-    });
-    const record = response.data;
-    if (record.success) {
-      toast.success("Congrats! File Name Changed Successfully!");
-      setLoader(false);
-      getData();
-    } else {
-      toast.error("File Name Change Failed!");
-    }
+    toast.success("Congrats! File Name Changed Successfully!");
+    setLoader(false);
+    getData();
   };
-  const deleteFile = (name, id, cloudinaryUrl) => {
+  const deleteFile = async (name, id) => {
     setLoader(true);
+    const isDelFromGithub = await deleteFileFromGithub(name, folder);
+    if (isDelFromGithub) {
+      toast.success("File deleted successfully From Github!");
+    } else {
+      toast.error("Error Deleting File From Github!");
+    }
     const desertRef = ref(storage, `${folder}/${name}`);
     deleteObject(desertRef)
       .then(async () => {
         await deleteDoc(doc(firestore, "downloads", id));
-        // File deleted successfully
-        const url = `${baseUrl}/api/delDownload`;
-        const response = await axios.post(url, { id });
-        const record = response.data;
-        if (cloudinaryUrl) {
-          try {
-            deleteImage(name);
-          } catch (error) {
-            console.error("Error:", error);
-            toast.error("Failed to Delete Image From Cloudinary");
-          }
-        }
-        if (record.success) {
-          toast.success("Congrats! File Deleted Successfully!");
-          setLoader(false);
-          getData();
-        } else {
-          toast.error("File Delete Failed!");
-        }
+        toast.success("Congrats! File Deleted Successfully!");
+        setLoader(false);
+        getData();
       })
       .catch((error) => {
         setLoader(false);
@@ -254,22 +184,6 @@ const AdminUploadFile = () => {
         });
       });
   };
-
-  const deleteImage = async (public_id) => {
-    try {
-      await axios
-        .post(`${baseUrl}/api/delFromCloudinary`, { public_id })
-        .then(() => toast.success("File deleted successfully"))
-        .catch((e) => {
-          toast.error("Failed to delete File");
-          console.log(e);
-        });
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Error deleting File");
-    }
-  };
-
   useEffect(() => {
     document.title = "WBTPTA AMTA WEST:Admin Upload File";
     if (state !== "admin") {
@@ -368,7 +282,7 @@ const AdminUploadFile = () => {
                 setFile(null);
                 setFileName("");
                 fileInpRef.current.value = "";
-                selectionRef.current.value = "";
+                selectionRef.current.value = "files";
                 setFolder("files");
               }}
             >
@@ -447,7 +361,7 @@ const AdminUploadFile = () => {
                         <td>{el.fileName}</td>
                         <td>
                           <a
-                            href={el.url}
+                            href={el.githubUrl}
                             className="btn btn-success rounded text-decoration-none"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -474,11 +388,7 @@ const AdminUploadFile = () => {
                             type="button"
                             className="btn btn-danger "
                             onClick={() =>
-                              deleteFile(
-                                el.originalFileName,
-                                el.id,
-                                el.cloudinaryUrl
-                              )
+                              deleteFile(el.originalFileName, el.id)
                             }
                           >
                             Delete Uploaded Files

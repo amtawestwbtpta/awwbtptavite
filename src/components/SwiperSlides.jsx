@@ -17,7 +17,6 @@ import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import "swiper/css/effect-cube";
 import { useGlobalContext } from "../context/Store";
-import { baseUrl } from "../modules/constants";
 const SwiperSlides = () => {
   const { slideState, setSlideState, slideUpdateTime, setSlideUpdateTime } =
     useGlobalContext();
@@ -35,23 +34,15 @@ const SwiperSlides = () => {
     setIsViewerOpen(false);
   };
   const getSlides = async () => {
-    let data = [];
-    try {
-      const q = query(collection(firestore, "slides"));
-      const querySnapshot = await getDocs(q);
-      data = querySnapshot.docs.map((doc) => ({
-        // doc.data() is never undefined for query doc snapshots
-        ...doc.data(),
-        id: doc.id,
-      }));
-    } catch (error) {
-      console.error("Error fetching slides data: ", error);
-      const url = `${baseUrl}/api/getSlides`;
-      const response = await axios.post(url);
-      data = response.data.data;
-    }
+    const q = query(collection(firestore, "slides"));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map((doc) => ({
+      // doc.data() is never undefined for query doc snapshots
+      ...doc.data(),
+      id: doc.id,
+    }));
     let imageUrls = [];
-    data.map((el) => imageUrls.push(el.url));
+    data.map((el) => imageUrls.push(el.githubUrl));
     setImages(imageUrls);
     setData(data);
     setSlideState(data);
@@ -120,11 +111,16 @@ const SwiperSlides = () => {
                 </div>
                 <div className="slideImage">
                   <img
-                    src={el.url}
-                    width={0}
-                    height={0}
+                    src={el.githubUrl}
                     sizes="100vw"
-                    style={{ width: "100%", height: "auto" }} // optional
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      objectFit: "cover",
+                      objectPosition: "center",
+                      borderRadius: 20,
+                      cursor: "pointer",
+                    }} // optional
                     alt="slideImages"
                     onClick={() => openImageViewer(ind)}
                   />
@@ -147,7 +143,7 @@ const SwiperSlides = () => {
         </Swiper>
       ) : null}
       {isViewerOpen && (
-        <imgViewer
+        <ImageViewer
           src={images}
           currentIndex={currentImage}
           disableScroll={false}

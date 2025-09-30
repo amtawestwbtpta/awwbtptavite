@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import GoogleDriveDownload from "./GoogleDriveDownload";
+import { AndroidAppLink } from "../modules/constants";
 
 export default function AppLink() {
   const [visible, setVisible] = useState(true);
@@ -18,15 +20,8 @@ export default function AppLink() {
         className="alert alert-success alert-dismissible fade show noprint"
         role="alert"
       >
-        <strong>To download Our Android App Click</strong>{" "}
-        <a
-          className="d-inline-block text-decoration-none fw-bold"
-          href="https://drive.google.com/drive/folders/1QQzBMJjI_MXTKxP3_ayTo7QflGD0vbVP?usp=sharing"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Here
-        </a>
+        <strong>To download Our Android App</strong>{" "}
+        <GoogleDriveDownload fileId={AndroidAppLink} />
         <button
           type="button"
           className="btn-close"

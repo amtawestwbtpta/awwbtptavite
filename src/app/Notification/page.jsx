@@ -1,6 +1,5 @@
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-// import { useNavigate } from "react-router";
 import {
   getDownloadURL,
   ref,
@@ -17,7 +16,6 @@ import {
   query,
   collection,
   updateDoc,
-  where,
 } from "firebase/firestore";
 import Loader from "../../components/Loader";
 import { v4 as uuid } from "uuid";
@@ -30,8 +28,10 @@ import {
 } from "../../modules/calculatefunctions";
 import NoticeDetails from "../../components/NoticeDetails";
 import { useGlobalContext } from "../../context/Store";
-import axios from "axios";
-import { baseUrl } from "../../modules/constants";
+import {
+  deleteFileFromGithub,
+  uploadFileToGithub,
+} from "../../modules/gitFileHndler";
 const Notification = () => {
   const { noticeState, noticeUpdateTime, setNoticeState, setNoticeUpdateTime } =
     useGlobalContext();
@@ -63,6 +63,7 @@ const Notification = () => {
     title: "",
     noticeText: "",
     url: "",
+    githubUrl: "",
     photoName: "",
     type: "",
   });
@@ -85,9 +86,15 @@ const Notification = () => {
   const addNotice = async () => {
     setLoader(true);
     if (addImage) {
+      const uploadableFileName = docId + "-" + file.name;
+      const githubUrl = await uploadFileToGithub(
+        file,
+        uploadableFileName,
+        "noticeImages"
+      );
       const filestorageRef = ref(
         storage,
-        `/noticeImages/${docId + "-" + file.name}`
+        `/noticeImages/${uploadableFileName}`
       );
       const uploadTask = uploadBytesResumable(filestorageRef, file);
       uploadTask.on(
@@ -115,69 +122,55 @@ const Notification = () => {
                 title: title,
                 noticeText: noticeText,
                 url: photourl,
-                photoName: docId + "-" + file.name,
+                githubUrl,
+                photoName: uploadableFileName,
                 type: file.type,
               })
                 .then(async () => {
-                  const url = `${baseUrl}/api/addNotice`;
-                  const response = await axios.post(url, {
-                    id: docId,
-                    date: Date.now(),
-                    addedBy: teacherdetails.tname,
-                    title: title,
-                    noticeText: noticeText,
-                    url: photourl,
-                    photoName: docId + "-" + file.name,
-                    type: file.type,
-                  });
-                  const record = response.data;
-                  if (record.success) {
-                    setNoticeState(
-                      [
-                        ...noticeState,
-                        {
-                          date: Date.now(),
-                          addedBy: teacherdetails.tname,
-                          title: title,
-                          noticeText: noticeText,
-                          url: photourl,
-                          photoName: docId + "-" + file.name,
-                          type: file.type,
-                        },
-                      ].sort((a, b) => b.date - a.date)
-                    );
-                    setNoticeUpdateTime(Date.now());
-                    setAllData(
-                      [
-                        ...noticeState,
-                        {
-                          date: Date.now(),
-                          addedBy: teacherdetails.tname,
-                          title: title,
-                          noticeText: noticeText,
-                          url: photourl,
-                          photoName: docId + "-" + file.name,
-                          type: file.type,
-                        },
-                      ].sort((a, b) => b.date - a.date)
-                    );
+                  setNoticeState(
+                    [
+                      ...noticeState,
+                      {
+                        date: Date.now(),
+                        addedBy: teacherdetails.tname,
+                        title: title,
+                        noticeText: noticeText,
+                        url: photourl,
+                        githubUrl,
+                        photoName: uploadableFileName,
+                        type: file.type,
+                      },
+                    ].sort((a, b) => b.date - a.date)
+                  );
+                  setNoticeUpdateTime(Date.now());
+                  setAllData(
+                    [
+                      ...noticeState,
+                      {
+                        date: Date.now(),
+                        addedBy: teacherdetails.tname,
+                        title: title,
+                        noticeText: noticeText,
+                        url: photourl,
+                        githubUrl,
+                        photoName: uploadableFileName,
+                        type: file.type,
+                      },
+                    ].sort((a, b) => b.date - a.date)
+                  );
 
-                    setNoticeText("");
-                    setTitle("");
-                    setLoader(false);
-                    setAddImage(false);
-                    toast.success("Notice Added Successfully!");
-                    if (fileRef.current) {
-                      fileRef.current.value = "";
-                    }
-                    setFile({});
-                    setSrc(null);
-                    setShowPercent(false);
-                    setProgress(0);
-                  } else {
-                    toast.error("Notice Addition Failed!");
-                    setLoader(false);
+                  setNoticeText("");
+                  setTitle("");
+                  setLoader(false);
+                  setAddImage(false);
+                  toast.success("Notice Added Successfully!");
+                  if (fileRef.current) {
+                    fileRef.current.value = "";
                   }
+                  setFile({});
+                  setSrc(null);
+                  setShowPercent(false);
+                  setProgress(0);
                 })
                 .catch((e) => {
                   setLoader(false);
@@ -210,65 +203,51 @@ const Notification = () => {
           title: title,
           noticeText: noticeText,
           url: "",
+          githubUrl: "",
           photoName: "",
           type: "",
         })
           .then(async () => {
-            const url = `${baseUrl}/api/addNotice`;
-            const response = await axios.post(url, {
-              id: docId,
-              date: Date.now(),
-              addedBy: teacherdetails.tname,
-              title: title,
-              noticeText: noticeText,
-              url: "",
-              photoName: "",
-              type: "",
-            });
-            const record = response.data;
-            if (record.success) {
-              setNoticeState([
-                ...noticeState,
-                {
-                  id: docId,
-                  date: Date.now(),
-                  addedBy: teacherdetails.tname,
-                  title: title,
-                  noticeText: noticeText,
-                  url: "",
-                  photoName: "",
-                  type: "",
-                },
-              ]);
-              setNoticeUpdateTime(Date.now());
-              setAllData([
-                ...noticeState,
-                {
-                  id: docId,
-                  date: Date.now(),
-                  addedBy: teacherdetails.tname,
-                  title: title,
-                  noticeText: noticeText,
-                  url: "",
-                  photoName: "",
-                  type: "",
-                },
-              ]);
+            setNoticeState([
+              ...noticeState,
+              {
+                id: docId,
+                date: Date.now(),
+                addedBy: teacherdetails.tname,
+                title: title,
+                noticeText: noticeText,
+                url: "",
+                githubUrl: "",
+                photoName: "",
+                type: "",
+              },
+            ]);
+            setNoticeUpdateTime(Date.now());
+            setAllData([
+              ...noticeState,
+              {
+                id: docId,
+                date: Date.now(),
+                addedBy: teacherdetails.tname,
+                title: title,
+                noticeText: noticeText,
+                url: "",
+                githubUrl: "",
+                photoName: "",
+                type: "",
+              },
+            ]);
 
-              setNoticeText("");
-              setTitle("");
-              setLoader(false);
-              setAddImage(false);
-              toast.success("Notice Added Successfully!");
-              if (fileRef.current) {
-                fileRef.current.value = "";
-              }
-              setFile({});
-              setSrc("");
-            } else {
-              toast.error("Notice Addition Failed!");
-              setLoader(false);
+            setNoticeText("");
+            setTitle("");
+            setLoader(false);
+            setAddImage(false);
+            toast.success("Notice Added Successfully!");
+            if (fileRef.current) {
+              fileRef.current.value = "";
             }
+            setFile({});
+            setSrc("");
           })
           .catch((e) => {
             setLoader(false);
@@ -303,46 +282,32 @@ const Notification = () => {
         addedBy: teacherdetails.tname,
       })
         .then(async () => {
-          const url = `${baseUrl}/api/updateNotice`;
-          const response = await axios.post(url, {
-            id: editID,
-            title: editTitle,
-            noticeText: editNoticeText,
-            date: Date.now(),
-            addedBy: teacherdetails.tname,
-          });
-          const record = response.data;
-          if (record.success) {
-            let x = noticeState.filter((el) => el.id === editID)[0];
-            let y = noticeState.filter((el) => el.id !== editID);
-            y = [
-              ...y,
-              {
-                id: editID,
-                date: Date.now(),
-                addedBy: teacherdetails.tname,
-                title: editTitle,
-                noticeText: editNoticeText,
-                url: x.url,
-                photoName: x.photoName,
-                type: x.type,
-              },
-            ];
-            let newData = y.sort((a, b) => b.date - a.date);
-            setNoticeState(newData);
-            setAllData(newData);
-            setNoticeUpdateTime(Date.now());
-            setLoader(false);
-            setEditTitle("");
-            setEditNoticeText("");
-            setOrgNoticeText("");
-            setOrgTitle("");
-            toast.success("Details Updated Successfully");
-            // getData();
-          } else {
-            toast.error("Notice Updation Failed!");
-            setLoader(false);
-          }
+          let x = noticeState.filter((el) => el.id === editID)[0];
+          let y = noticeState.filter((el) => el.id !== editID);
+          y = [
+            ...y,
+            {
+              id: editID,
+              date: Date.now(),
+              addedBy: teacherdetails.tname,
+              title: editTitle,
+              noticeText: editNoticeText,
+              url: x.url,
+              photoName: x.photoName,
+              type: x.type,
+            },
+          ];
+          let newData = y.sort((a, b) => b.date - a.date);
+          setNoticeState(newData);
+          setAllData(newData);
+          setNoticeUpdateTime(Date.now());
+          setLoader(false);
+          setEditTitle("");
+          setEditNoticeText("");
+          setOrgNoticeText("");
+          setOrgTitle("");
+          toast.success("Details Updated Successfully");
+          // getData();
         })
         .catch((err) => {
           toast.error("Notice Updation Failed!");
@@ -350,14 +315,29 @@ const Notification = () => {
         });
     } else {
       try {
+        const isDelFromGithub = await deleteFileFromGithub(
+          editFileName,
+          "noticeImages"
+        );
+        if (isDelFromGithub) {
+          toast.success("File deleted successfully From Github!");
+        } else {
+          toast.error("Error Deleting File From Github!");
+        }
         const desertRef = ref(storage, `noticeImages/${editFileName}`);
         await deleteObject(desertRef);
       } catch (e) {
         console.log(e);
       }
+      const editUploadableFileName = docId + "-" + editFile.name;
+      const githubUrl = await uploadFileToGithub(
+        editFile,
+        editUploadableFileName,
+        "noticeImages"
+      );
       const filestorageRef = ref(
         storage,
-        `/noticeImages/${docId + "-" + editFile.name}`
+        `/noticeImages/${editUploadableFileName}`
       );
       const uploadTask = uploadBytesResumable(filestorageRef, editFile);
       uploadTask.on(
@@ -381,58 +361,42 @@ const Notification = () => {
               date: Date.now(),
               addedBy: teacherdetails.tname,
               url: photourl,
+              githubUrl,
               type: editFile.type,
-              photoName: docId + "-" + editFile.name,
+              photoName: editUploadableFileName,
             })
               .then(async () => {
-                const url = `${baseUrl}/api/updateNotice`;
-                const response = await axios.post(url, {
-                  id: editID,
-                  title: editTitle,
-                  noticeText: editNoticeText,
-                  date: Date.now(),
-                  addedBy: teacherdetails.tname,
-                  url: photourl,
-                  type: editFile.type,
-                  photoName: docId + "-" + editFile.name,
-                });
-                const record = response.data;
-                if (record.success) {
-                  let x = noticeState.filter((el) => el.id === editID)[0];
-                  let y = noticeState.filter((el) => el.id !== editID);
-                  y = [
-                    ...y,
-                    {
-                      id: editID,
-                      date: Date.now(),
-                      addedBy: teacherdetails.tname,
-                      title: editTitle,
-                      noticeText: editNoticeText,
-                      url: photourl,
-                      type: editFile.type,
-                      photoName: docId + "-" + editFile.name,
-                    },
-                  ];
-                  let newData = y.sort((a, b) => b.date - a.date);
-                  setNoticeState(newData);
-                  setAllData(newData);
-                  setNoticeUpdateTime(Date.now());
-                  setLoader(false);
-                  setEditTitle("");
-                  setEditNoticeText("");
-                  setOrgNoticeText("");
-                  setOrgTitle("");
-                  setEditFile({});
-                  setEditFileName("");
-                  setSrc(null);
-                  setShowPercent(false);
-                  setProgress(0);
-                  toast.success("Details Updated Successfully");
-                  // getData();
-                } else {
-                  toast.error("Notice Updation Failed!");
-                  setLoader(false);
-                }
+                let y = noticeState.filter((el) => el.id !== editID);
+                y = [
+                  ...y,
+                  {
+                    id: editID,
+                    date: Date.now(),
+                    addedBy: teacherdetails.tname,
+                    title: editTitle,
+                    noticeText: editNoticeText,
+                    url: photourl,
+                    githubUrl,
+                    type: editFile.type,
+                    photoName: editUploadableFileName,
+                  },
+                ];
+                let newData = y.sort((a, b) => b.date - a.date);
+                setNoticeState(newData);
+                setAllData(newData);
+                setNoticeUpdateTime(Date.now());
+                setLoader(false);
+                setEditTitle("");
+                setEditNoticeText("");
+                setOrgNoticeText("");
+                setOrgTitle("");
+                setEditFile({});
+                setEditFileName("");
+                setSrc(null);
+                setShowPercent(false);
+                setProgress(0);
+                toast.success("Details Updated Successfully");
+                // getData();
               })
               .catch((err) => {
                 toast.error("Notice Updation Failed!");
@@ -448,53 +412,34 @@ const Notification = () => {
     await deleteDoc(doc(firestore, "notices", el.id))
       .then(async () => {
         try {
+          const isDelFromGithub = await deleteFileFromGithub(
+            el.photoName,
+            "noticeImages"
+          );
+
+          if (isDelFromGithub) {
+            toast.success("File deleted successfully From Github!");
+          } else {
+            toast.error("Error Deleting File From Github!");
+          }
+
           const desertRef = ref(storage, `noticeImages/${el.photoName}`);
           await deleteObject(desertRef);
         } catch (e) {
           console.log(e);
         }
-        const querySnapshot = await getDocs(
-          query(
-            collection(firestore, "noticeReply"),
-            where("noticeId", "==", el.id)
-          )
-        );
-        const datas = querySnapshot.docs.map((doc) => ({
-          // doc.data() is never undefined for query doc snapshots
-          ...doc.data(),
-          id: doc.id,
-        }));
-        let response = datas.map(async (elem, index) => {
-          try {
-            await deleteDoc(doc(firestore, "noticeReply", elem.id));
-          } catch (error) {
-            console.log(error);
-          }
-        });
-        await Promise.all(response).then(async () => {
-          const url = `${baseUrl}/api/delNotice`;
-          const response = await axios.post(url, {
-            id: el.id,
-          });
-          const record = response.data;
-          if (record.success) {
-            try {
-              const desertRef = ref(storage, `noticeImages/${el.photoName}`);
-              await deleteObject(desertRef);
-            } catch (error) {
-              console.log(error);
-            }
-            setLoader(false);
-            toast.success("Notice Deleted Successfully!");
-            // getData();
-            setNoticeState(allData.filter((item) => item.id !== el.id));
-            setAllData(allData.filter((item) => item.id !== el.id));
-            setNoticeUpdateTime(Date.now());
-          } else {
-            toast.error("Notice Deletion Failed!");
-            setLoader(false);
-          }
-        });
+        try {
+          const desertRef = ref(storage, `noticeImages/${el.photoName}`);
+          await deleteObject(desertRef);
+        } catch (error) {
+          console.log(error);
+        }
+        setLoader(false);
+        toast.success("Notice Deleted Successfully!");
+        // getData();
+        setNoticeState(allData.filter((item) => item.id !== el.id));
+        setAllData(allData.filter((item) => item.id !== el.id));
+        setNoticeUpdateTime(Date.now());
       })
       .catch((err) => {
         console.log(err);
@@ -583,11 +528,11 @@ const Notification = () => {
                 key={index}
               >
                 <div className="card m-2 p-1" style={{ width: "18rem" }}>
-                  {el.url !== "" && el.type.split("/")[0] === "image" ? (
+                  {el.githubUrl !== "" && el.type.split("/")[0] === "image" ? (
                     <img
                       src={
-                        el.url !== ""
-                          ? el.url
+                        el.githubUrl !== ""
+                          ? el.githubUrl
                           : "https://raw.githubusercontent.com/awwbtpta/data/main/notice.png"
                       }
                       style={{ height: 200, cursor: "pointer" }}

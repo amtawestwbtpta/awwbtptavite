@@ -1,16 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../../context/Store";
 import { ToastContainer, toast } from "react-toastify";
 import {
-  compareObjects,
   createDownloadLink,
   getCurrentDateInput,
   getSubmitDateInput,
   IndianFormat,
   readCSVFile,
   titleCase,
-  todayInString,
 } from "../../modules/calculatefunctions";
 import {
   collection,
@@ -31,6 +29,7 @@ import DCRGForm from "../../pdfs/DCRGForm";
 import LTAForm from "../../pdfs/LTAForm";
 import PensionLeaveForm from "../../pdfs/PensionLeaveForm";
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import GoogleDriveFolderLink from "../../components/GoogleDriveFolderLink";
 export default function EPensionFiles() {
   const navigate = useNavigate();
   const { state, stateObject } = useGlobalContext();
@@ -79,6 +78,7 @@ export default function EPensionFiles() {
     children: [],
     applicationNo: "",
     disability: "",
+    gdriveId: "",
   });
   const [loader, setLoader] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -772,6 +772,26 @@ export default function EPensionFiles() {
                     required
                   />
                 </div>
+                <div className=" mb-3">
+                  <label className="form-label">Google Drive Folder ID</label>
+                  <label className="form-label">
+                    (e.g.
+                    https://drive.google.com/drive/folders/FOLDER_ID?usp=sharing
+                    )
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Google Drive Folder ID"
+                    value={inputField.gdriveId}
+                    onChange={(e) => {
+                      setInputField({
+                        ...inputField,
+                        gdriveId: e.target.value,
+                      });
+                    }}
+                  />
+                </div>
                 {children.map((child, index) => (
                   <div key={index} className="mx-auto border rounded p-2 my-2">
                     <div className="d-flex justify-content-center align-items-center mb-2">
@@ -1322,6 +1342,9 @@ export default function EPensionFiles() {
           Go to e-Pension
         </a>
       </div>
+      {inputField.gdriveId && (
+        <GoogleDriveFolderLink gdriveFolderID={inputField.gdriveId} />
+      )}
     </div>
   );
 }

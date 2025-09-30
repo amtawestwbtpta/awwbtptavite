@@ -1,6 +1,39 @@
+// import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import React from "react";
+import GoogleDriveDownload from "./GoogleDriveDownload";
+import { AndroidAppLink } from "../modules/constants";
+// import { firestore } from "../context/FirebaseContext";
+// import { collection, getDocs, query } from "firebase/firestore";
+// import Loader from "./Loader";
+// import Image from "next/image";
 const Footer = () => {
+  // const [showLoader, setShowLoader] = useState(false);
+  // const [contacts, setContacts] = useState([]);
+  // const storeContacts = async () => {
+  //   setShowLoader(true);
+  //   let data = [];
+  //   const q = query(collection(firestore, "contacts"));
+  //   const querySnapshot = await getDocs(q);
+  //   data = querySnapshot.docs.map((doc) => ({
+  //     // doc.data() is never undefined for query doc snapshots
+  //     ...doc.data(),
+  //     id: doc.id,
+  //   }));
+  //   const newData = data.sort((a, b) => {
+  //     // First, compare the "school" keys
+  //     if (a.name < b.name) {
+  //       return -1;
+  //     }
+  //     if (a.name > b.name) {
+  //       return 1;
+  //     }
+  //   });
+  //   setContacts(newData);
+  //   setShowLoader(false);
+  // };
+  // useEffect(() => {
+  //   storeContacts();
+  // }, []);
   return (
     <div className="noprint" style={{ bottom: 0, position: "-webkit-sticky" }}>
       <div className="container-fluid bg-white mt-2 p-1">
@@ -20,10 +53,38 @@ const Footer = () => {
             <h6 className="h-font fw-bold fs-6">Joypur, Howrah- 711401</h6>
           </div>
 
-          <div className="col-lg-6">
+          {/* <div className="col-lg-6 d-flex flex-column jutify-content-center align-items-center">
+            <h5 className="container text-left">Call Us:</h5>
+            <div>
+              {contacts.map((el) => (
+                <div
+                  key={el.id}
+                  className="d-flex flex-column align-items-start justify-content-center"
+                >
+                  <Link
+                    to={`tel: +91${el.mobile}`}
+                    className="d-inline-block text-decoration-none text-dark"
+                  >
+                    <Image
+                      src={el.url}
+                      alt="logo"
+                      width={30}
+                      height={30}
+                      className="rounded-circle"
+                    />
+                    &nbsp;&nbsp;
+                    <i className="bi bi-telephone-fill"></i>+ 91 {el.mobile},{" "}
+                    {el.name}, {el.designation}
+                  </Link>
+                  <br />
+                </div>
+              ))}
+            </div>
+          </div> */}
+          <div className="col-lg-6 d-flex flex-column jutify-content-center align-items-center">
             <h5 className="container text-left">Call Us:</h5>
             <Link
-              href="tel: +918101823972"
+              to="tel: +918101823972"
               className="d-inline-block mb-2 text-decoration-none text-dark"
             >
               <i className="bi bi-telephone-fill"></i>+ 91 81018 23972, Debasish
@@ -32,7 +93,7 @@ const Footer = () => {
             <br />
 
             <Link
-              href="tel: +919933691466"
+              to="tel: +919933691466"
               className="d-inline-block mb-2 text-decoration-none text-dark"
             >
               <i className="bi bi-telephone-fill"></i>+ 91 99336 91466, Partha
@@ -40,17 +101,8 @@ const Footer = () => {
             </Link>
             <br />
 
-            {/* <Link
-              href="tel: +919330536561"
-              className="d-inline-block mb-2 text-decoration-none text-dark"
-            >
-              <i className="bi bi-telephone-fill"></i>+ 91 93305 36561, Sanjoy
-              Kumar Bag, District Member
-            </Link>
-            <br /> */}
-
             <Link
-              href="tel: +919933684468"
+              to="tel: +919933684468"
               className="d-inline-block mb-2 text-decoration-none text-dark"
             >
               <i className="bi bi-telephone-fill"></i>+ 91 99336 84468, Sk
@@ -65,7 +117,7 @@ const Footer = () => {
         <h5 className="container text-center">Important Links:</h5>
         <Link
           className="d-inline-block m-2 text-decoration-none text-primary"
-          href="https://banglarshiksha.wb.gov.in/login"
+          to="https://banglarshiksha.wb.gov.in/login"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -73,7 +125,7 @@ const Footer = () => {
         </Link>
         <Link
           className="d-inline-block m-2 text-decoration-none text-primary"
-          href="https://school.banglarshiksha.gov.in/sms/"
+          to="https://school.banglarshiksha.gov.in/sms/"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -81,7 +133,7 @@ const Footer = () => {
         </Link>
         <Link
           className="d-inline-block m-2 text-decoration-none text-primary"
-          href="https://www.wbbpe.org"
+          to="https://www.wbbpe.org"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -89,7 +141,7 @@ const Footer = () => {
         </Link>
         <Link
           className="d-inline-block m-2 text-decoration-none text-primary"
-          href="https://wbbse.wb.gov.in"
+          to="https://wbbse.wb.gov.in"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -97,7 +149,7 @@ const Footer = () => {
         </Link>
         <Link
           className="d-inline-block m-2 text-decoration-none text-primary"
-          href="https://www.wb.gov.in"
+          to="https://www.wb.gov.in"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -105,7 +157,7 @@ const Footer = () => {
         </Link>
         <Link
           className="d-inline-block m-2 text-decoration-none text-primary"
-          href="https://www.facebook.com/amtawestwbtpta"
+          to="https://www.facebook.com/amtawestwbtpta"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -113,24 +165,23 @@ const Footer = () => {
         </Link>
         <Link
           className="d-inline-block m-2 text-decoration-none text-primary"
-          href="mailto: westamta@gmail.com"
+          to="mailto: westamta@gmail.com"
         >
           <i className="bi bi-envelope-at-fill"></i> Email Us
         </Link>
         <Link
           className="d-inline-block m-2 text-decoration-none text-primary"
-          href="https://wbresults.nic.in"
+          to="https://wbresults.nic.in"
         >
           <i className="bi bi-browser-chrome"></i> WB Results
         </Link>
-        <Link
-          className="d-inline-block m-2 text-decoration-none text-primary"
-          href="https://drive.google.com/drive/folders/1QQzBMJjI_MXTKxP3_ayTo7QflGD0vbVP?usp=sharing"
-        >
-          <i className="bi bi-android2"></i> Our App
-        </Link>
-      </div>
 
+        <div className="d-inline-block m-2 text-decoration-none text-primary">
+          <i className="bi bi-android2"></i>{" "}
+          <GoogleDriveDownload fileId={AndroidAppLink} text="Our Android App" />
+        </div>
+      </div>
+      {/* {showLoader && <Loader />} */}
       <h6 className="text-center bg-dark text-white p-2 mb-0 h-font">
         © Copyright WBTPTA AMTA WEST CIRCLE COMMITTEE- 2022. This Site is
         Designed and Maintained By WBTPTA AMTA WEST CIRCLE.

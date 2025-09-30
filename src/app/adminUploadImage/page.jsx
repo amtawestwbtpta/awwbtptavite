@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../../context/Store";
 import { ToastContainer, toast } from "react-toastify";
 import { firestore } from "../../context/FirebaseContext";
@@ -23,14 +23,15 @@ import { storage } from "../../context/FirebaseContext";
 import AdminNavBar from "../../components/AdminNavBar";
 import { v4 as uuid } from "uuid";
 import Loader from "../../components/Loader";
-import axios from "axios";
 import { compareObjects } from "../../modules/calculatefunctions";
-import { baseUrl } from "../../modules/constants";
+import {
+  deleteFileFromGithub,
+  uploadFileToGithub,
+} from "../../modules/gitFileHndler";
 const AdminUploadImage = () => {
   const { state, slideState, setSlideState, setSlideUpdateTime } =
     useGlobalContext();
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const navigate = useNavigate();
   const docId = uuid();
   const [loader, setLoader] = useState(false);
@@ -159,13 +160,14 @@ const AdminUploadImage = () => {
     return isvalid;
   };
 
-  const uploadFiles = () => {
+  const uploadFiles = async () => {
     if (validForm()) {
       if (file == null) {
         toast.error("Upload File First!");
         return;
       } else {
         setLoader(true);
+        const githubUrl = await uploadFileToGithub(file, file.name, folder);
         const filestorageRef = ref(storage, `/${folder}/${file.name}`);
         const uploadTask = uploadBytesResumable(filestorageRef, file);
         uploadTask.on(
@@ -180,105 +182,56 @@ const AdminUploadImage = () => {
           },
           (err) => console.log(err),
           () => {
-            // download url
             getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
-              // console.log(url);
               try {
-                const data = new FormData();
-                data.append("file", file);
-                data.append("upload_preset", folder);
-                data.append("cloud_name", cloudName);
-                data.append("public_id", file.name);
-                const cldUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-
-                await axios
-                  .post(cldUrl, data)
-                  .then(async (data) => {
-                    const cdurl = data.data.secure_url;
-                    try {
-                      await setDoc(doc(firestore, folder, docId), {
-                        title: inputField.title,
-                        description: inputField.description,
-                        url: url,
-                        id: docId,
-                        fileName: file.name,
-                        cloudinaryUrl: cdurl,
-                      });
-                      if (folder === "slides") {
-                        setSlideState([
-                          ...slideState,
-                          {
-                            title: inputField.title,
-                            description: inputField.description,
-                            url: url,
-                            id: docId,
-                            fileName: file.name,
-                            cloudinaryUrl: cdurl,
-                          },
-                        ]);
-                        setSlideUpdateTime(Date.now());
-                        const nextApi = `${baseUrl}/api/addSlides`;
-                        const response = await axios.post(nextApi, {
-                          title: inputField.title,
-                          description: inputField.description,
-                          url: url,
-                          id: docId,
-                          fileName: file.name,
-                          cloudinaryUrl: cdurl,
-                        });
-                        const record = response.data;
-                        if (record.success) {
-                          toast.success(
-                            "Congrats! Slide Image added Successfully to MongoDB!"
-                          );
-                        } else {
-                          toast.error("Failed to Upload Image");
-                        }
-                      }
-                      toast.success("Congrats! File Uploaded Successfully!");
-
-                      setLoader(false);
-
-                      setInputField({
-                        title: "",
-                        description: "",
-                        url: null,
-                      });
-                      setProgress(0);
-                      setData(false);
-                      setFile(null);
-                      getData();
-                      if (typeof window !== "undefined") {
-                        // browser code
-                        document.getElementById("file-upload").value = "";
-                        document.getElementById("progress-bar").style.width = 0;
-                      }
-                    } catch (e) {
-                      toast.success("File Upload Failed!", {
-                        position: "top-right",
-                        autoClose: 1500,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-
-                        draggable: true,
-                        progress: undefined,
-                        theme: "light",
-                      });
-                      setLoader(false);
-                    }
-                    toast.success(
-                      "Congrats! File Uploaded Successfully to Clodinary!"
-                    );
-                  })
-                  .catch((error) => {
-                    setLoader(false);
-                    console.error(error);
-                    toast.error("Failed to Upload Image");
-                  });
-              } catch (error) {
+                await setDoc(doc(firestore, folder, docId), {
+                  title: inputField.title,
+                  description: inputField.description,
+                  url: url,
+                  id: docId,
+                  fileName: file.name,
+                });
+                if (folder === "slides") {
+                  setSlideState([
+                    ...slideState,
+                    {
+                      title: inputField.title,
+                      description: inputField.description,
+                      url: url,
+                      githubUrl,
+                      id: docId,
+                      fileName: file.name,
+                    },
+                  ]);
+                  setSlideUpdateTime(Date.now());
+                }
+                toast.success("Congrats! File Uploaded Successfully!");
                 setLoader(false);
-                console.error("Error:", error);
-                toast.error("Failed to Upload File to Cloudinary!");
+                setInputField({
+                  title: "",
+                  description: "",
+                  url: null,
+                });
+                setProgress(0);
+                setData(false);
+                setFile(null);
+                getData();
+                if (typeof window !== "undefined") {
+                  document.getElementById("file-upload").value = "";
+                  document.getElementById("progress-bar").style.width = 0;
+                }
+              } catch (e) {
+                toast.success("File Upload Failed!", {
+                  position: "top-right",
+                  autoClose: 1500,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+
+                  draggable: true,
+                  progress: undefined,
+                  theme: "light",
+                });
+                setLoader(false);
               }
             });
           }
@@ -287,38 +240,23 @@ const AdminUploadImage = () => {
     }
   };
 
-  const deleteFile = (name, id, cloudinaryUrl) => {
+  const deleteFile = async (name, id) => {
     setLoader(true);
+    const isDelFromGithub = await deleteFileFromGithub(name, folder);
+    if (isDelFromGithub) {
+      toast.success("File deleted successfully From Github!");
+    } else {
+      toast.error("Error Deleting File From Github!");
+    }
     const desertRef = ref(storage, `${folder}/${name}`);
     deleteObject(desertRef)
       .then(async () => {
         await deleteDoc(doc(firestore, folder, id));
-        try {
-          await axios
-            .post(`${baseUrl}/api/delSlides`, { id })
-            .then(() => toast.success("Image deleted successfully"))
-            .catch((e) => {
-              toast.error("Failed to delete image");
-              console.log(e);
-            });
-        } catch (error) {
-          console.error("Error:", error);
-          toast.error("Error deleting image");
-        }
+        toast.success("Image deleted successfully");
         if (folder === "slides") {
           setSlideState(slideState.filter((item) => item.id !== id));
           setSlideUpdateTime(Date.now());
         }
-        if (cloudinaryUrl) {
-          try {
-            deleteImage(name);
-          } catch (error) {
-            console.error("Error:", error);
-            toast.error("Failed to Delete Image From Cloudinary");
-          }
-        }
-
-        // File deleted successfully
         toast.success("Congrats! File Deleted Successfully!");
         setLoader(false);
         getData();
@@ -327,6 +265,7 @@ const AdminUploadImage = () => {
         setLoader(false);
         // Uh-oh, an error occurred!
         toast.error("Something Went Wrong!");
+        console.log(error);
       });
   };
 
@@ -335,8 +274,22 @@ const AdminUploadImage = () => {
       setLoader(true);
       if (editFile) {
         try {
+          const isDelFromGithub = await deleteFileFromGithub(
+            editField.fileName,
+            folder
+          );
+          if (isDelFromGithub) {
+            toast.success("File deleted successfully From Github!");
+          } else {
+            toast.error("Error Deleting File From Github!");
+          }
           const desertRef = ref(storage, `${folder}/${editField.fileName}`);
           await deleteObject(desertRef);
+          const githubUrl = await uploadFileToGithub(
+            editFile,
+            editFile.name,
+            folder
+          );
           const filestorageRef = ref(storage, `/${folder}/${editFile.name}`);
           const uploadTask = uploadBytesResumable(filestorageRef, editFile);
           uploadTask.on(
@@ -354,111 +307,56 @@ const AdminUploadImage = () => {
               // download url
               getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
                 // console.log(url);
-                if (editField.cloudinaryUrl) {
-                  try {
-                    const data = new FormData();
-                    data.append("file", editFile);
-                    data.append("public_id", editField.fileName);
-                    data.append("folder", folder);
-                    const cloudinaryUpDel = `${baseUrl}/api/cloudinaryUpDel`;
-
-                    await axios
-                      .post(cloudinaryUpDel, data)
-                      .then((data) => {
-                        toast.success(
-                          "Congrats! File Updated Successfully on Clodinary!"
-                        );
-                      })
-                      .catch((error) => {
-                        console.error(error);
-                        toast.error("Failed to Upload Image");
-                      });
-                  } catch (error) {
-                    console.error("Error:", error);
-                    toast.error("Failed to Upload File to Cloudinary!");
+                try {
+                  await updateDoc(doc(firestore, folder, editField.id), {
+                    title: editField.title,
+                    description: editField.description,
+                    url: url,
+                    githubUrl,
+                    fileName: editFile.name,
+                  });
+                  if (folder === "slides") {
+                    let x = slideState.filter(
+                      (el) => el.id === editField.id
+                    )[0];
+                    x.title = editField.title;
+                    x.description = editField.description;
+                    x.url = url;
+                    x.fileName = editFile.name;
+                    let y = slideState.filter((el) => el.id !== editField.id);
+                    y = [...y, x];
+                    setSlideState(y);
+                    setSlideUpdateTime(Date.now());
                   }
+                  toast.success("Congrats! File Uploaded Successfully!");
+                  setLoader(false);
+                  setInputField({
+                    title: "",
+                    description: "",
+                    url: null,
+                  });
+                  setData(false);
+                  setFile(null);
+                  getData();
+                  if (typeof window !== "undefined") {
+                    // browser code
+                    document.getElementById("file-upload").value = "";
+                    document.getElementById("progress-bar").style.width = 0;
+                  }
+                } catch (e) {
+                  console.log(e);
+                  toast.success("File Upload Failed!", {
+                    position: "top-right",
+                    autoClose: 1500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                  setLoader(false);
                 }
-                const data = new FormData();
-                data.append("file", editFile);
-                data.append("upload_preset", folder);
-                data.append("cloud_name", cloudName);
-                data.append("public_id", editFile.name);
-                const cldUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-
-                await axios.post(cldUrl, data).then(async (data) => {
-                  const cdurl = data.data.secure_url;
-                  try {
-                    await updateDoc(doc(firestore, folder, editField.id), {
-                      title: editField.title,
-                      description: editField.description,
-                      url: url,
-                      fileName: editFile.name,
-                      cloudinaryUrl: cdurl,
-                    });
-                    if (folder === "slides") {
-                      let x = slideState.filter(
-                        (el) => el.id === editField.id
-                      )[0];
-                      x.title = editField.title;
-                      x.description = editField.description;
-                      x.url = url;
-                      x.fileName = editFile.name;
-                      x.cloudinaryUrl = cdurl;
-                      let y = slideState.filter((el) => el.id !== editField.id);
-                      y = [...y, x];
-                      setSlideState(y);
-                      setSlideUpdateTime(Date.now());
-                      const nextApi = `${baseUrl}/api/updateSlide`;
-                      const response = await axios.post(nextApi, {
-                        title: editField.title,
-                        description: editField.description,
-                        url: url,
-                        id: editField.id,
-                        fileName: editFile.name,
-                        cloudinaryUrl: cdurl,
-                      });
-                      const record = response.data;
-                      if (record.success) {
-                        toast.success(
-                          "Congrats! Slide Image added Successfully to MongoDB!"
-                        );
-                      } else {
-                        toast.error("Failed to Upload Image");
-                      }
-                    }
-                    toast.success("Congrats! File Uploaded Successfully!");
-
-                    setLoader(false);
-
-                    setInputField({
-                      title: "",
-                      description: "",
-                      url: null,
-                    });
-
-                    setData(false);
-                    setFile(null);
-                    getData();
-                    if (typeof window !== "undefined") {
-                      // browser code
-                      document.getElementById("file-upload").value = "";
-                      document.getElementById("progress-bar").style.width = 0;
-                    }
-                  } catch (e) {
-                    console.log(e);
-                    toast.success("File Upload Failed!", {
-                      position: "top-right",
-                      autoClose: 1500,
-                      hideProgressBar: false,
-                      closeOnClick: true,
-
-                      draggable: true,
-                      progress: undefined,
-                      theme: "light",
-                    });
-                    setLoader(false);
-                  }
-                });
               });
             }
           );
@@ -474,7 +372,6 @@ const AdminUploadImage = () => {
             fileName: "",
             cloudinaryUrl: null,
           });
-
           if (typeof window !== "undefined") {
             // browser code
             document.getElementById("file-upload").value = "";
@@ -494,31 +391,14 @@ const AdminUploadImage = () => {
             y = [...y, x];
             setSlideState(y);
             setSlideUpdateTime(Date.now());
-            const nextApi = `${baseUrl}/api/updateSlide`;
-            const response = await axios.post(nextApi, {
-              title: editField.title,
-              description: editField.description,
-              id: editField.id,
-            });
-            const record = response.data;
-            if (record.success) {
-              toast.success(
-                "Congrats! Slide Image added Successfully to MongoDB!"
-              );
-            } else {
-              toast.error("Failed to Upload Image");
-            }
           }
           toast.success("Congrats! File Uploaded Successfully!");
-
           setLoader(false);
-
           setInputField({
             title: "",
             description: "",
             url: null,
           });
-
           setData(false);
           setFile(null);
           getData();
@@ -547,20 +427,6 @@ const AdminUploadImage = () => {
       console.log(validEditForm(), "Edit Field");
       console.log(!compareObjects(editField, orgEditField), "Compare Object");
       console.log(editFile !== null, "EditFile");
-    }
-  };
-  const deleteImage = async (public_id) => {
-    try {
-      await axios
-        .post(`${baseUrl}/api/delFromCloudinary`, { public_id })
-        .then(() => toast.success("Image deleted successfully"))
-        .catch((e) => {
-          toast.error("Failed to delete image");
-          console.log(e);
-        });
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Error deleting image");
     }
   };
   useEffect(() => {

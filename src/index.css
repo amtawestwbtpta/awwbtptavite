@@ -431,3 +431,16 @@ table#team-list tbody tr td:first-child::before {
     width: 8px;
   }
 }
+.retry-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.retry-button:hover {
+  background-color: #0056b3;
+}

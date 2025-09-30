@@ -69,13 +69,12 @@ import HolisticPRCard from "./app/HolisticPRCardAny/page";
 import ImageUpload from "./app/imageUpload/page";
 import MonthlyDAArrear from "./app/monthlyDAArrear/page";
 import TeacherTransferComponent from "./app/TeacherSelection/page";
+import GithubManager from "./app/GithubManager/page";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import { useState } from "react";
-import { useEffect } from "react";
-import { ToastContainer } from "react-toastify";
+import { Bounce, ToastContainer } from "react-toastify";
 import { GlobalContextProvider } from "./context/Store";
-
+import AppLink from "./components/AppLink";
 const Routing = () => {
   return (
     <Routes>
@@ -202,56 +201,28 @@ const Routing = () => {
         path="/TeacherTransferComponent"
         element={<TeacherTransferComponent />}
       />
+      <Route exact path="/GithubManager" element={<GithubManager />} />
     </Routes>
   );
 };
 function App() {
-  const [showAlert, setShowAlert] = useState(false);
-  useEffect(() => {
-    setTimeout(() => {
-      setShowAlert(true);
-    }, 500);
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 15000);
-  }, []);
   return (
     <GlobalContextProvider>
       <HashRouter>
         <div className="container-fluid w-100 h-100 bg-light text-center mx-auto">
-          {showAlert && (
-            <div
-              className="alert alert-success alert-dismissible fade show"
-              role="alert"
-            >
-              <strong>To download Our Android App Click</strong>{" "}
-              <a
-                className="d-inline-block text-decoration-none fw-bold"
-                href="https://drive.google.com/drive/folders/1QQzBMJjI_MXTKxP3_ayTo7QflGD0vbVP?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Here
-              </a>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close"
-                onClick={() => setShowAlert(false)}
-              ></button>
-            </div>
-          )}
+          <AppLink />
           <ToastContainer
             position="top-right"
-            autoClose={2000}
+            autoClose={5000}
             hideProgressBar={false}
             newestOnTop={false}
-            closeOnClick
+            closeOnClick={false}
             rtl={false}
+            pauseOnFocusLoss
             draggable
             pauseOnHover
             theme="light"
+            transition={Bounce}
           />
           <Navbar />
           <Routing />

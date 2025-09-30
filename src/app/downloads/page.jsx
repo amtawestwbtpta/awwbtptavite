@@ -4,7 +4,8 @@ import { collection, getDocs, query } from "firebase/firestore";
 import Loader from "../../components/Loader";
 import { createDownloadLink } from "../../modules/calculatefunctions";
 import { useGlobalContext } from "../../context/Store";
-
+import { AndroidAppLink } from "../../modules/constants";
+import GoogleDriveDownload from "../../components/GoogleDriveDownload";
 const Downloads = () => {
   const [data, setData] = useState(false);
   const { state } = useGlobalContext();
@@ -60,14 +61,11 @@ const Downloads = () => {
                 <td>Our Android App</td>
                 <td>APK</td>
                 <td>
-                  <a
-                    href="https://drive.google.com/drive/folders/1QQzBMJjI_MXTKxP3_ayTo7QflGD0vbVP?usp=sharing"
+                  <GoogleDriveDownload
+                    fileId={AndroidAppLink}
+                    text="Download"
                     className="btn btn-success rounded text-decoration-none"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Download
-                  </a>
+                  />
                 </td>
               </tr>
               {allData.map((el, ind) => {
@@ -109,7 +107,7 @@ const Downloads = () => {
                     </td>
                     <td>
                       <a
-                        href={el.url}
+                        href={el.githubUrl}
                         className="btn btn-success rounded text-decoration-none"
                         target="_blank"
                         rel="noopener noreferrer"

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { firestore } from "../../context/FirebaseContext";
 import { doc, setDoc, getDocs, query, collection } from "firebase/firestore";
-import axios from "axios";
 import { useGlobalContext } from "../../context/Store";
 import Loader from "../../components/Loader";
 import {
@@ -13,7 +12,6 @@ import {
 } from "../../modules/calculatefunctions";
 import { ToastContainer, toast } from "react-toastify";
 import { v4 as uuid } from "uuid";
-import { baseUrl } from "../../modules/constants";
 export default function FloodRelief() {
   const {
     state,
@@ -68,17 +66,14 @@ export default function FloodRelief() {
   const getData = async () => {
     try {
       setShowLoader(true);
-      // const querySnapshot = await getDocs(
-      //   query(collection(firestore, "floodrelief"))
-      // );
-      // const data = querySnapshot.docs.map((doc) => ({
-      //   // doc.data() is never undefined for query doc snapshots
-      //   ...doc.data(),
-      //   id: doc.id,
-      // }));
-      const url = `${baseUrl}/api/getRelief`;
-      const response = await axios.post(url);
-      const data = response.data.data;
+      const querySnapshot = await getDocs(
+        query(collection(firestore, "floodrelief"))
+      );
+      const data = querySnapshot.docs.map((doc) => ({
+        // doc.data() is never undefined for query doc snapshots
+        ...doc.data(),
+        id: doc.id,
+      }));
       updateComp(data);
     } catch (error) {
       console.error("Error getting documents: ", error);
@@ -89,20 +84,13 @@ export default function FloodRelief() {
   const submitData = async () => {
     setShowLoader(true);
     try {
-      // await setDoc(doc(firestore, "floodrelief", inputField.id), inputField);
+      await setDoc(doc(firestore, "floodrelief", inputField.id), inputField);
       setAddDonation(false);
-      const url = `${baseUrl}/api/addRelief`;
-      const response = await axios.post(url, inputField);
-      const record = response.data;
-      if (record.success) {
-        let x = floodReliefState;
-        x = [...x, inputField];
-        updateComp(x);
-        setShowLoader(false);
-        toast.success("Flood Relief Data Added Successfully");
-      } else {
-        toast.error("Error in Adding Flood Relief Data");
-      }
+      let x = floodReliefState;
+      x = [...x, inputField];
+      updateComp(x);
+      setShowLoader(false);
+      toast.success("Flood Relief Data Added Successfully");
     } catch (error) {
       console.error("Error adding document: ", error);
       setShowLoader(false);
@@ -156,22 +144,15 @@ export default function FloodRelief() {
   const updateData = async () => {
     setShowLoader(true);
     try {
-      // await setDoc(doc(firestore, "floodrelief", editField.id), editField);
-      const url = `${baseUrl}/api/updateRelief`;
-      const response = await axios.post(url, editField);
-      const record = response.data;
-      if (record.success) {
-        let x = floodReliefState;
-        let index = x.findIndex((doc) => doc.id === editField.id);
-        x[index] = editField;
-        updateComp([...x]);
-        // getData();
-        setShowLoader(false);
-        setShowEditForm(false);
-        toast.success("Flood Relief Data Updated Successfully");
-      } else {
-        toast.error("Error in Updating Flood Relief Data");
-      }
+      await setDoc(doc(firestore, "floodrelief", editField.id), editField);
+      let x = floodReliefState;
+      let index = x.findIndex((doc) => doc.id === editField.id);
+      x[index] = editField;
+      updateComp([...x]);
+      // getData();
+      setShowLoader(false);
+      setShowEditForm(false);
+      toast.success("Flood Relief Data Updated Successfully");
     } catch (error) {
       console.error("Error updating document: ", error);
       setShowLoader(false);
@@ -181,21 +162,13 @@ export default function FloodRelief() {
   const deleteData = async (id) => {
     setShowLoader(true);
     try {
-      // await deleteDoc(doc(firestore, "floodrelief", id));
-      const url = `${baseUrl}/api/delRelief`;
-      const response = await axios.post(url, { id });
-      const record = response.data;
-      if (record.success) {
-        let x = floodReliefState;
-        let index = x.findIndex((doc) => doc.id === id);
-        x.splice(index, 1);
-        updateComp([...x]);
-
-        // getData();
-        toast.success("Flood Relief Data Deleted Successfully");
-      } else {
-        toast.error("Error in Deleting Flood Relief Data");
-      }
+      await deleteDoc(doc(firestore, "floodrelief", id));
+      let x = floodReliefState;
+      let index = x.findIndex((doc) => doc.id === id);
+      x.splice(index, 1);
+      updateComp([...x]);
+      // getData();
+      toast.success("Flood Relief Data Deleted Successfully");
     } catch (error) {
       console.error("Error deleting document: ", error);
       setShowLoader(false);

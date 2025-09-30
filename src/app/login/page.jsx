@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useGlobalContext } from "../../context/Store";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { ToastContainer, toast } from "react-toastify";
@@ -22,7 +22,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { state, setState, setUSER } = useGlobalContext();
   const [loader, setLoader] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const CheckAuth = authKey;
   const [inputField, setInputField] = useState({
     username: "",
@@ -240,7 +239,7 @@ const Login = () => {
         rtl={false}
         pauseOnFocusLoss={false}
         draggable
-        pauseOnHover
+        pauseOnHover={false}
         theme="light"
       />
 
