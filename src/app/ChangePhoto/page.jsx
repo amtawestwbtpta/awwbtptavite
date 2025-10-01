@@ -352,7 +352,7 @@ const ChangePhoto = () => {
             <button
               type="button"
               className="btn btn-info text-white font-weight-bold p-2 rounded"
-              onClick={() => router.back()}
+              onClick={() => navigate(-1)}
             >
               Go Back
             </button>

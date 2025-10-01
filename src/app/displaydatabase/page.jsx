@@ -453,7 +453,7 @@ const DisplayDatabase = () => {
                     ></button>
                   </div>
                   <div className="modal-body">
-                    <Image
+                    <img
                       src={userField?.url}
                       alt="profilephoto"
                       width={200}

@@ -139,7 +139,7 @@ const ChangeUserImage = () => {
                         if (fileInputRef.current)
                           fileInputRef.current.value = "";
                         setStateObject({});
-                        router.back();
+                        navigate(-1);
                       } else {
                         toast.error("Failed to Change Image!");
                       }
@@ -357,7 +357,7 @@ const ChangeUserImage = () => {
             <button
               type="button"
               className="btn btn-info text-white font-weight-bold p-2 rounded"
-              onClick={() => router.back()}
+              onClick={() => navigate(-1)}
             >
               Go Back
             </button>

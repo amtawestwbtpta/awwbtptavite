@@ -65,11 +65,12 @@ const Footer = () => {
                     to={`tel: +91${el.mobile}`}
                     className="d-inline-block text-decoration-none text-dark"
                   >
-                    <Image
+                    <img
                       src={el.url}
                       alt="logo"
                       width={30}
                       height={30}
+                      style={{ borderRadius: "50%",width: "30px", height: "30px", objectFit: "cover", objectPosition: "center"}}
                       className="rounded-circle"
                     />
                     &nbsp;&nbsp;

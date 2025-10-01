@@ -1004,7 +1004,7 @@ const AddTeacher = () => {
 
                     <button
                       className="btn btn-sm rounded btn-danger m-2"
-                      onClick={() => router.back()}
+                      onClick={() => navigate(-1)}
                     >
                       Cancel
                     </button>
