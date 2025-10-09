@@ -62,41 +62,41 @@ const SchoolTeacherDataUnlog = () => {
         <div className="container my-3 mx-auto">
           <div className="row my-3">
             <div className="col-md-6">
-              <h4 className="text-primary text center">
+              <h4 className="text-primary text-center">
                 SCHOOL NAME: {filteredSchool[0].school}
               </h4>
             </div>
             <div className="col-md-6">
-              <h4 className="text-primary text center">
+              <h4 className="text-primary text-center">
                 GP NAME: {filteredSchool[0].gp}
               </h4>
             </div>
           </div>
           <div className="row">
             <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 UDISE: {filteredSchool[0].udise}
               </h6>
             </div>
             <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 Total Teacher: {filteredData.length}
               </h6>
             </div>
             {/* <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 Total Student {filteredSchool[0].year - 2}:{" "}
                 {filteredSchool[0].student_prev2}
               </h6>
             </div>
             <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 Total Student {filteredSchool[0].year - 1}:{" "}
                 {filteredSchool[0].student}
               </h6>
             </div>
             <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 Total Student {filteredSchool[0].year}:{" "}
                 {filteredSchool[0].total_student}
               </h6>
@@ -104,38 +104,38 @@ const SchoolTeacherDataUnlog = () => {
             <StudentCount
               info={filteredSchool[0]}
               divClassNames={"col-md-3 m-1"}
-              hClassNames={"text-primary text center"}
+              hClassNames={"text-primary text-center"}
             />
           </div>
           <div className="row my-2">
             <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 No. of Pre Primary Students: {filteredSchool[0].pp}
               </h6>
             </div>
             <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 No. of Class I Students: {filteredSchool[0].i}
               </h6>
             </div>
             <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 No. of Class II Students: {filteredSchool[0].ii}
               </h6>
             </div>
             <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 No. of Class III Students: {filteredSchool[0].iii}
               </h6>
             </div>
             <div className="col-md-3 m-1">
-              <h6 className="text-primary text center">
+              <h6 className="text-primary text-center">
                 No. of Class IV Students: {filteredSchool[0].iv}
               </h6>
             </div>
             {filteredSchool[0].v > 0 ? (
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   No. of Class V Students: {filteredSchool[0].v}
                 </h6>
               </div>

@@ -218,46 +218,46 @@ const SchoolTeacherData = () => {
           <div className="container my-3 mx-auto">
             <div className="row my-3">
               <div className="col-md-6">
-                <h4 className="text-primary text center">
+                <h4 className="text-primary text-center">
                   SCHOOL NAME: {filteredSchool.school}
                 </h4>
               </div>
               <div className="col-md-6">
-                <h4 className="text-primary text center">
+                <h4 className="text-primary text-center">
                   GP NAME: {filteredSchool.gp}
                 </h4>
               </div>
             </div>
             <div className="row">
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   UDISE: {filteredSchool.udise}
                 </h6>
               </div>
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   Total Teacher: {filteredData.length}
                 </h6>
               </div>
               <StudentCount
                 info={filteredSchool}
                 divClassNames={"col-md-3 m-1"}
-                hClassNames={"text-primary text center"}
+                hClassNames={"text-primary text-center"}
               />
               {/* <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   Total Student {filteredSchool.year - 2}:{" "}
                   {filteredSchool.student_prev2}
                 </h6>
               </div>
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   Total Student {filteredSchool.year - 1}:{" "}
                   {filteredSchool.student}
                 </h6>
               </div>
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   Total Student {filteredSchool.year}:{" "}
                   {filteredSchool.total_student}
                 </h6>
@@ -265,33 +265,33 @@ const SchoolTeacherData = () => {
             </div>
             <div className="row my-2">
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   No. of Pre Primary Students: {filteredSchool.pp}
                 </h6>
               </div>
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   No. of Class I Students: {filteredSchool.i}
                 </h6>
               </div>
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   No. of Class II Students: {filteredSchool.ii}
                 </h6>
               </div>
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   No. of Class III Students: {filteredSchool.iii}
                 </h6>
               </div>
               <div className="col-md-3 m-1">
-                <h6 className="text-primary text center">
+                <h6 className="text-primary text-center">
                   No. of Class IV Students: {filteredSchool.iv}
                 </h6>
               </div>
               {filteredSchool.v > 0 ? (
                 <div className="col-md-3 m-1">
-                  <h6 className="text-primary text center">
+                  <h6 className="text-primary text-center">
                     No. of Class V Students: {filteredSchool.v}
                   </h6>
                 </div>

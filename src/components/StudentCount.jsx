@@ -3,7 +3,7 @@ import React from "react";
 const StudentCount = ({
   info,
   divClassNames = "col-md-3 m-1",
-  hClassNames = "text-primary text center",
+  hClassNames = "text-primary text-center",
 }) => {
   // Filter all keys that start with "student_"
   const studentEntries = Object.entries(info)
