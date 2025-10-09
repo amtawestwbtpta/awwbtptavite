@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import StudentCount from "../../components/StudentCount";
 
 const SchoolTeacherDataUnlog = () => {
   const [teacherData, setTeacherData] = useState([]);
@@ -82,6 +83,12 @@ const SchoolTeacherDataUnlog = () => {
                 Total Teacher: {filteredData.length}
               </h6>
             </div>
+            {/* <div className="col-md-3 m-1">
+              <h6 className="text-primary text center">
+                Total Student {filteredSchool[0].year - 2}:{" "}
+                {filteredSchool[0].student_prev2}
+              </h6>
+            </div>
             <div className="col-md-3 m-1">
               <h6 className="text-primary text center">
                 Total Student {filteredSchool[0].year - 1}:{" "}
@@ -91,9 +98,14 @@ const SchoolTeacherDataUnlog = () => {
             <div className="col-md-3 m-1">
               <h6 className="text-primary text center">
                 Total Student {filteredSchool[0].year}:{" "}
-                {filteredSchool[0].student}
+                {filteredSchool[0].total_student}
               </h6>
-            </div>
+            </div> */}
+            <StudentCount
+              info={filteredSchool[0]}
+              divClassNames={"col-md-3 m-1"}
+              hClassNames={"text-primary text center"}
+            />
           </div>
           <div className="row my-2">
             <div className="col-md-3 m-1">

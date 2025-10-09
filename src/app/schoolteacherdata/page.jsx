@@ -4,6 +4,7 @@ import { useGlobalContext } from "../../context/Store";
 import { ToastContainer, toast } from "react-toastify";
 import { firestore } from "../../context/FirebaseContext";
 import { doc, updateDoc } from "firebase/firestore";
+import StudentCount from "../../components/StudentCount";
 const SchoolTeacherData = () => {
   const {
     state,
@@ -34,6 +35,9 @@ const SchoolTeacherData = () => {
     gp: "",
     year: 2025,
     udise: "",
+    student_2023: 0,
+    student_2024: 0,
+    student_2025: 0,
   });
 
   useEffect(() => {
@@ -59,6 +63,9 @@ const SchoolTeacherData = () => {
     gp: "",
     year: 2025,
     udise: "",
+    student_2023: 0,
+    student_2024: 0,
+    student_2025: 0,
   });
   const update = async () => {
     const newData = {
@@ -70,6 +77,9 @@ const SchoolTeacherData = () => {
       iii: inputField.iii,
       iv: inputField.iv,
       v: inputField.v,
+      student_2023: inputField.student_2023,
+      student_2024: inputField.student_2024,
+      student_2025: inputField.student_2025,
       total_student: parseInt(
         inputField.pp +
           inputField.i +
@@ -96,6 +106,7 @@ const SchoolTeacherData = () => {
       setSchoolState(y);
       setSchoolUpdateTime(Date.now());
       setschoolData(y);
+      setFilteredSchool(newData);
 
       toast.success("Congrats! School Data Updated Successfully!", {
         position: "top-right",
@@ -228,7 +239,12 @@ const SchoolTeacherData = () => {
                   Total Teacher: {filteredData.length}
                 </h6>
               </div>
-              <div className="col-md-3 m-1">
+              <StudentCount
+                info={filteredSchool}
+                divClassNames={"col-md-3 m-1"}
+                hClassNames={"text-primary text center"}
+              />
+              {/* <div className="col-md-3 m-1">
                 <h6 className="text-primary text center">
                   Total Student {filteredSchool.year - 2}:{" "}
                   {filteredSchool.student_prev2}
@@ -245,7 +261,7 @@ const SchoolTeacherData = () => {
                   Total Student {filteredSchool.year}:{" "}
                   {filteredSchool.total_student}
                 </h6>
-              </div>
+              </div> */}
             </div>
             <div className="row my-2">
               <div className="col-md-3 m-1">
@@ -514,6 +530,43 @@ const SchoolTeacherData = () => {
                                   name="total_student"
                                   value={inputField.total_student || 0}
                                   readOnly
+                                />
+                              </div>
+                              <hr />
+                              <div className="mb-3 col-lg-6">
+                                <label className="form-label">
+                                  Total Sudent 2023
+                                </label>
+                                <input
+                                  type="number"
+                                  className="form-control"
+                                  name="student_2023"
+                                  value={inputField.student_2023 || ""}
+                                  onChange={handleChange}
+                                />
+                              </div>
+                              <div className="mb-3 col-lg-6">
+                                <label className="form-label">
+                                  Total Sudent 2024
+                                </label>
+                                <input
+                                  type="number"
+                                  className="form-control"
+                                  name="student_2024"
+                                  value={inputField.student_2024 || ""}
+                                  onChange={handleChange}
+                                />
+                              </div>
+                              <div className="mb-3 col-lg-6">
+                                <label className="form-label">
+                                  Total Sudent 2025
+                                </label>
+                                <input
+                                  type="number"
+                                  className="form-control"
+                                  name="student_2025"
+                                  value={inputField.student_2025 || ""}
+                                  onChange={handleChange}
                                 />
                               </div>
                             </div>
