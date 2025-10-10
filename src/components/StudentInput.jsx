@@ -78,23 +78,45 @@ const StudentInput = ({
 
           return (
             key !== "id" && (
-              <div className={divClassNames} key={key}>
-                <label
-                  htmlFor={id}
-                  className={hClassNames}
-                  style={{ display: "block" }}
-                >
-                  {labelText}
-                </label>
-                <input
-                  id={id}
-                  name={key}
-                  type={isNumber ? "number" : "text"}
-                  className="form-control"
-                  value={value === undefined || value === null ? "" : value}
-                  onChange={(e) => handleChange(key, e.target.value)}
-                />
-              </div>
+              <React.Fragment key={key}>
+                {key !== "v" ? (
+                  <div className={divClassNames} key={key}>
+                    <label
+                      htmlFor={id}
+                      className={hClassNames}
+                      style={{ display: "block" }}
+                    >
+                      {labelText}
+                    </label>
+                    <input
+                      id={id}
+                      name={key}
+                      type={isNumber ? "number" : "text"}
+                      className="form-control"
+                      value={value === undefined || value === null ? "" : value}
+                      onChange={(e) => handleChange(key, e.target.value)}
+                    />
+                  </div>
+                ) : key === "v" && value > 0 ? (
+                  <div className={divClassNames} key={key}>
+                    <label
+                      htmlFor={id}
+                      className={hClassNames}
+                      style={{ display: "block" }}
+                    >
+                      {labelText}
+                    </label>
+                    <input
+                      id={id}
+                      name={key}
+                      type={isNumber ? "number" : "text"}
+                      className="form-control"
+                      value={value === undefined || value === null ? "" : value}
+                      onChange={(e) => handleChange(key, e.target.value)}
+                    />
+                  </div>
+                ) : null}
+              </React.Fragment>
             )
           );
         })}

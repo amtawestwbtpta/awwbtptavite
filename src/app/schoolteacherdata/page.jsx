@@ -6,6 +6,8 @@ import { firestore } from "../../context/FirebaseContext";
 import { doc, updateDoc } from "firebase/firestore";
 import StudentCount from "../../components/StudentCount";
 import StudentInput from "../../components/StudentInput";
+import { decryptData } from "../../modules/encryption";
+import { myAPIKey } from "../../modules/constants";
 const SchoolTeacherData = () => {
   const {
     state,
@@ -17,7 +19,7 @@ const SchoolTeacherData = () => {
     setStateObject,
   } = useGlobalContext();
   const navigate = useNavigate();
-
+  const token = decryptData(myAPIKey);
   const [teacherData, setTeacherData] = useState(teachersState);
   const [schoolData, setschoolData] = useState(schoolState);
   const [filteredData, setFilteredData] = useState([]);
@@ -104,11 +106,54 @@ const SchoolTeacherData = () => {
         if (nameA > nameB) return 1;
         return 0; //default return value (no sorting)
       });
+      try {
+        // Ensure we upload valid JSON content to GitHub
+        const jsonContent = JSON.stringify(y, null, 2);
+        const content = Buffer.from(jsonContent, "utf-8").toString("base64");
+        const url =
+          "https://api.github.com/repos/amtawestwbtpta/awwbtptadata/contents/schools.json";
+        let sha = null;
+        try {
+          const check = await fetch(url, {
+            headers: { Authorization: `token ${token}` },
+          });
+          if (check.ok) {
+            const data = await check.json();
+            sha = data.sha;
+          }
+        } catch (error) {
+          console.log(error);
+        }
+        await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `token ${token}`,
+          },
+          body: JSON.stringify({
+            message: "Update school data",
+            content: content,
+            branch: "main",
+            sha,
+          }),
+        });
+      } catch (error) {
+        console.log(error);
+        toast.error("Failed to update data on GitHub", {
+          position: "top-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
       setSchoolState(y);
       setSchoolUpdateTime(Date.now());
       setschoolData(y);
       setFilteredSchool(newData);
-
       toast.success("Congrats! School Data Updated Successfully!", {
         position: "top-right",
         autoClose: 1500,
