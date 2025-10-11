@@ -8,6 +8,7 @@ import StudentCount from "../../components/StudentCount";
 import StudentInput from "../../components/StudentInput";
 import { decryptData } from "../../modules/encryption";
 import { myAPIKey } from "../../modules/constants";
+import { Buffer } from "buffer";
 const SchoolTeacherData = () => {
   const {
     state,
