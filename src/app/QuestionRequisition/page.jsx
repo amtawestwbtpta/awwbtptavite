@@ -260,13 +260,19 @@ const QuestionRequisition = () => {
         gp: selectedData.gp,
         id: docId,
         sl: serial,
-        cl_pp_student: selectedData.pp,
-        cl_1_student: selectedData.i,
-        cl_2_student: selectedData.ii,
-        cl_3_student: selectedData.iii,
-        cl_4_student: selectedData.iv,
-        cl_5_student: selectedData.v,
-        total_student: selectedData.total_student,
+        cl_pp_student: parseInt(selectedData.pp),
+        cl_1_student: parseInt(selectedData.i),
+        cl_2_student: parseInt(selectedData.ii),
+        cl_3_student: parseInt(selectedData.iii),
+        cl_4_student: parseInt(selectedData.iv),
+        cl_5_student: parseInt(selectedData.v),
+        total_student:
+          parseInt(selectedData.pp) +
+          parseInt(selectedData.i) +
+          parseInt(selectedData.ii) +
+          parseInt(selectedData.iii) +
+          parseInt(selectedData.iv) +
+          parseInt(selectedData.v),
         total_rate: Math.floor(
           selectedData.pp * questionRateState.pp_rate +
             selectedData.i * questionRateState.i_rate +
@@ -408,7 +414,7 @@ const QuestionRequisition = () => {
       getAcceptingData();
     }
     // eslint-disable-next-line
-  }, [router]); // Add dependencies as needed
+  }, []); // Add dependencies as needed
 
   useEffect(() => {
     // eslint-disable-next-line
@@ -428,7 +434,7 @@ const QuestionRequisition = () => {
         rtl={false}
         pauseOnFocusLoss={false}
         draggable
-        pauseOnHover
+        pauseOnHover={false}
         theme="light"
       />
       {loader ? <Loader /> : null}

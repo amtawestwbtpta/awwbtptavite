@@ -31,11 +31,8 @@ const SchoolTeacherData = () => {
     iii: 0,
     iv: 0,
     v: 0,
-    student_prev2: 0,
     id: "",
     school: "",
-    total_student: 0,
-    student: 0,
     gp: "",
     year: 2025,
     udise: "",
@@ -43,7 +40,7 @@ const SchoolTeacherData = () => {
     student_2024: 0,
     student_2025: 0,
   });
-
+  const [total_student, setTotal_student] = useState(0);
   useEffect(() => {
     document.title = "WBTPTA AMTA WEST:School Wise Teacher Data";
     if (!state) {
@@ -59,11 +56,8 @@ const SchoolTeacherData = () => {
     iii: 0,
     iv: 0,
     v: 0,
-    student_prev2: 0,
     id: "",
     school: "",
-    total_student: 0,
-    student: 0,
     gp: "",
     year: 2025,
     udise: "",
@@ -74,29 +68,21 @@ const SchoolTeacherData = () => {
   const update = async () => {
     const newData = {
       ...inputField,
-      school: inputField.school,
-      pp: inputField.pp,
-      i: inputField.i,
-      ii: inputField.ii,
-      iii: inputField.iii,
-      iv: inputField.iv,
-      v: inputField.v,
-      student_2023: inputField.student_2023,
-      student_2024: inputField.student_2024,
-      student_2025: inputField.student_2025,
-      total_student: parseInt(
-        inputField.pp +
-          inputField.i +
-          inputField.ii +
-          inputField.iii +
-          inputField.iv +
-          inputField.v
-      ),
+      pp: parseInt(inputField.pp),
+      i: parseInt(inputField.i),
+      ii: parseInt(inputField.ii),
+      iii: parseInt(inputField.iii),
+      iv: parseInt(inputField.iv),
+      v: parseInt(inputField.v),
+      student_2023: parseInt(inputField.student_2023),
+      student_2024: parseInt(inputField.student_2024),
+      student_2025: parseInt(inputField.student_2025),
+      year: parseInt(inputField.year),
     };
     try {
       const docRef = doc(firestore, "schools", newData.id);
       await updateDoc(docRef, newData);
-      let y = schoolState.filter((el) => el.id !== inputField.id);
+      let y = schoolState.filter((el) => el.id !== newData.id);
       y = [...y, newData];
       y = y.sort(function (a, b) {
         var nameA = a.school.toLowerCase(),
@@ -187,34 +173,17 @@ const SchoolTeacherData = () => {
       setStateArray(tData);
       setFilteredSchool(sData);
       setInputField(sData);
+      const totalStudents =
+        parseInt(sData.pp) +
+        parseInt(sData.i) +
+        parseInt(sData.ii) +
+        parseInt(sData.iii) +
+        parseInt(sData.iv) +
+        parseInt(sData.v);
+      setTotal_student(totalStudents);
     } else {
       toast.error("Please Select School Name");
     }
-  };
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    // parse numbers only for student fields
-    const parsedValue =
-      ["pp", "i", "ii", "iii", "iv", "v"].includes(name) && value !== ""
-        ? parseInt(value) || 0
-        : value;
-
-    const updatedField = { ...inputField, [name]: parsedValue };
-
-    // recalculate total only from student fields
-    const total =
-      (parseInt(updatedField.pp) || 0) +
-      (parseInt(updatedField.i) || 0) +
-      (parseInt(updatedField.ii) || 0) +
-      (parseInt(updatedField.iii) || 0) +
-      (parseInt(updatedField.iv) || 0) +
-      (parseInt(updatedField.v) || 0);
-
-    setInputField({
-      ...updatedField,
-      total_student: total,
-    });
   };
 
   useEffect(() => {
@@ -291,24 +260,6 @@ const SchoolTeacherData = () => {
                 divClassNames={"col-md-3 m-1"}
                 hClassNames={"text-primary text-center"}
               />
-              {/* <div className="col-md-3 m-1">
-                <h6 className="text-primary text-center">
-                  Total Student {filteredSchool.year - 2}:{" "}
-                  {filteredSchool.student_prev2}
-                </h6>
-              </div>
-              <div className="col-md-3 m-1">
-                <h6 className="text-primary text-center">
-                  Total Student {filteredSchool.year - 1}:{" "}
-                  {filteredSchool.student}
-                </h6>
-              </div>
-              <div className="col-md-3 m-1">
-                <h6 className="text-primary text-center">
-                  Total Student {filteredSchool.year}:{" "}
-                  {filteredSchool.total_student}
-                </h6>
-              </div> */}
             </div>
             <div className="row my-2">
               <div className="col-md-3 m-1">
@@ -346,42 +297,29 @@ const SchoolTeacherData = () => {
             </div>
             <div className="my-2">
               {(filteredData.length > 2 &&
-                filteredSchool.total_student >= 100 &&
-                Math.floor(
-                  filteredSchool.total_student / filteredData.length
-                ) >= 40) ||
+                total_student >= 100 &&
+                Math.floor(total_student / filteredData.length) >= 40) ||
               (filteredData.length > 2 &&
-                filteredSchool.total_student < 100 &&
-                Math.floor(filteredSchool.total_student / filteredData.length) >
-                  35) ||
+                total_student < 100 &&
+                Math.floor(total_student / filteredData.length) > 35) ||
               (filteredData.length <= 2 &&
-                Math.floor(filteredSchool.total_student / filteredData.length) >
-                  35) ? (
+                Math.floor(total_student / filteredData.length) > 35) ? (
                 <div>
                   <h4 className="m-0 text-danger text-center">
                     Student Teacher Ratio is{" "}
-                    {Math.floor(
-                      filteredSchool.total_student / filteredData.length
-                    )}
-                    , Less Teacher
+                    {Math.floor(total_student / filteredData.length)}, Less
+                    Teacher
                   </h4>
                   <br />
                 </div>
               ) : (filteredData.length > 2 &&
-                  Math.floor(
-                    filteredSchool.total_student / filteredData.length
-                  ) >= 30) ||
+                  Math.floor(total_student / filteredData.length) >= 30) ||
                 filteredData.length <= 2 ||
-                Math.floor(
-                  filteredSchool.total_student / filteredData.length
-                ) <= 30 ? (
+                Math.floor(total_student / filteredData.length) <= 30 ? (
                 <div>
                   <h4 className="m-0 text-success text-center">
                     Student Teacher Ratio is{" "}
-                    {Math.floor(
-                      filteredSchool.total_student / filteredData.length
-                    )}
-                    , Normal
+                    {Math.floor(total_student / filteredData.length)}, Normal
                   </h4>
                   <br />
                 </div>
@@ -389,10 +327,8 @@ const SchoolTeacherData = () => {
                 <div>
                   <h4 className="m-0 text-danger text-center">
                     Student Teacher Ratio is{" "}
-                    {Math.floor(
-                      filteredSchool.total_student / filteredData.length
-                    )}
-                    , Excess Teacher
+                    {Math.floor(total_student / filteredData.length)}, Excess
+                    Teacher
                   </h4>
                   <br />
                 </div>
@@ -477,146 +413,6 @@ const SchoolTeacherData = () => {
                             ></button>
                           </div>
                           <div className="modal-body">
-                            {/* <div className="row d-flex justify-content-center">
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">
-                                  School Name
-                                </label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  name="school"
-                                  value={inputField.school || ""}
-                                  onChange={handleChange}
-                                />
-                              </div>
-                              <div className="mb-3 col-lg-6">
-                                <h3 className="text-info text-center">
-                                  Total Teacher: {filteredData.length}
-                                </h3>
-                              </div>
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">PP Student</label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="pp"
-                                  value={inputField.pp || ""}
-                                  onChange={handleChange}
-                                />
-                              </div>
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">
-                                  Class I Student
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="i"
-                                  value={inputField.i || ""}
-                                  onChange={handleChange}
-                                />
-                              </div>
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">
-                                  Class II Student
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="ii"
-                                  value={inputField.ii || ""}
-                                  onChange={handleChange}
-                                />
-                              </div>
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">
-                                  Class III Student
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="iii"
-                                  value={inputField.iii || ""}
-                                  onChange={handleChange}
-                                />
-                              </div>
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">
-                                  Class IV Student
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="iv"
-                                  value={inputField.iv || ""}
-                                  onChange={handleChange}
-                                />
-                              </div>
-                              {filteredSchool.v > 0 && (
-                                <div className="mb-3 col-lg-6">
-                                  <label className="form-label">
-                                    Class V Student
-                                  </label>
-                                  <input
-                                    type="number"
-                                    className="form-control"
-                                    name="v"
-                                    value={inputField.v || ""}
-                                    onChange={handleChange}
-                                  />
-                                </div>
-                              )}
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">
-                                  Total Student
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="total_student"
-                                  value={inputField.total_student || 0}
-                                  readOnly
-                                />
-                              </div>
-                              <hr />
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">
-                                  Total Sudent 2023
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="student_2023"
-                                  value={inputField.student_2023 || ""}
-                                  onChange={handleChange}
-                                />
-                              </div>
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">
-                                  Total Sudent 2024
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="student_2024"
-                                  value={inputField.student_2024 || ""}
-                                  onChange={handleChange}
-                                />
-                              </div>
-                              <div className="mb-3 col-lg-6">
-                                <label className="form-label">
-                                  Total Sudent 2025
-                                </label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="student_2025"
-                                  value={inputField.student_2025 || ""}
-                                  onChange={handleChange}
-                                />
-                              </div>
-                            </div> */}
                             <div className="row d-flex justify-content-center">
                               <StudentInput
                                 info={inputField}
